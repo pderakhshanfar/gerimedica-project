@@ -79,6 +79,31 @@ public class IntegrationTest {
         Assertions.assertThat(jsonArray.size()).isEqualTo(4);
     }
 
+    @Test
+    public void testGettingExistingRecordByCode() throws IOException {
+        //events
+        this.upload();
+        ResponseEntity<String> response = restTemplate.getForEntity(serverUrl+"/276885007", String.class);
+        JsonArray jsonArray = new Gson().fromJson(response.getBody(), JsonArray.class);
+
+        //assertion
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(jsonArray.size()).isEqualTo(1);
+
+    }
+
+    public void testGettingNonExistingRecordByCode() throws IOException {
+        //events
+        this.upload();
+        // record with code 23 should not exist.
+        ResponseEntity<String> response = restTemplate.getForEntity(serverUrl+"/23", String.class);
+        JsonArray jsonArray = new Gson().fromJson(response.getBody(), JsonArray.class);
+
+        //assertion
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(jsonArray.size()).isEqualTo(0);
+    }
+
 
     private ResponseEntity<String> upload() throws IOException {
         Path sample_csv_file = Paths.get(userDir,"sample.csv");
