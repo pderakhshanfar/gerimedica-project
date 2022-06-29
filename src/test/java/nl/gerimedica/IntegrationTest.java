@@ -139,6 +139,7 @@ public class IntegrationTest {
         // Delete file
         File csvFile = sample_csv_file.toFile();
         csvFile.delete();
+
         // Return the response
         return response;
     }
