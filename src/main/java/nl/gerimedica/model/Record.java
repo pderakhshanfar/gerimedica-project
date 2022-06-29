@@ -1,8 +1,11 @@
 package nl.gerimedica.model;
 
 
+import org.apache.commons.csv.CSVRecord;
+
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 public class Record {
@@ -37,6 +40,31 @@ public class Record {
 
     //default constructor
     public Record(){}
+
+    // Constructor to map records of uploaded CSV file to an Record object
+    public Record(CSVRecord record) {
+        DateTimeFormatter europeanDateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        this.source = record.get("source");
+        this.codeListCode = record.get("codeListCode");
+        this.code = record.get("code");
+        this.displayValue = record.get("displayValue");
+        this.longDescription = record.get("longDescription");
+        this.fromDate = LocalDate.parse(record.get("fromDate"), europeanDateFormat);
+
+        try{
+            this.toDate = LocalDate.parse(record.get("toDate"), europeanDateFormat);
+        }catch(Exception e){
+            // do nothing. keep the value null
+        }
+
+        try{
+            this.sortingPriority = Integer.valueOf(record.get("sortingPriority"));
+        }catch(Exception e){
+            // do nothing. keep the value null
+        }
+
+    }
 
     // Getters and Setters
     public Long getId() {

@@ -5,9 +5,9 @@ import nl.gerimedica.service.RecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -27,5 +27,10 @@ public class RecordController {
     @GetMapping(produces = "application/json")
     public List<Record> getAllData(){
         return this.recordService.getAllData();
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void uploadCSV(@RequestParam("file") MultipartFile csvFile){
+        recordService.saveInDatabase(csvFile);
     }
 }
