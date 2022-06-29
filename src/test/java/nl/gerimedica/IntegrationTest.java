@@ -92,6 +92,7 @@ public class IntegrationTest {
 
     }
 
+    @Test
     public void testGettingNonExistingRecordByCode() throws IOException {
         //events
         this.upload();
@@ -101,6 +102,7 @@ public class IntegrationTest {
 
         //assertion
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        // Empty list should be returned
         Assertions.assertThat(jsonArray.size()).isEqualTo(0);
     }
 
