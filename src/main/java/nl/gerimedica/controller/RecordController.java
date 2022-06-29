@@ -39,4 +39,9 @@ public class RecordController {
         LOG.debug("Code {} requested!",code);
         return this.recordService.getByCode(code);
     }
+
+    @DeleteMapping
+    public void deleteAll(){
+        recordService.deleteAll();
+    }
 }

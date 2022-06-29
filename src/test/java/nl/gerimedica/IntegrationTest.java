@@ -154,4 +154,22 @@ public class IntegrationTest {
         }
     }
 
+
+    @Test
+    public void testDeletedAll() throws IOException {
+        //events
+        // First, upload a CSV file with 4 records.
+        this.upload();
+        // Then, we delete it.
+        restTemplate.delete(serverUrl);
+        // Next, send a Get all request
+        ResponseEntity<String> response = restTemplate.getForEntity(serverUrl, String.class);
+        JsonArray jsonArray = new Gson().fromJson(response.getBody(), JsonArray.class);
+
+        //assertion
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        // There should be no record saved in the database
+        Assertions.assertThat(jsonArray.size()).isEqualTo(0);
+    }
+
 }

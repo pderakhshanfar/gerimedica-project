@@ -60,4 +60,8 @@ public class RecordService {
         }
         return result;
     }
+
+    public void deleteAll() {
+        recordRepository.deleteAll();
+    }
 }
