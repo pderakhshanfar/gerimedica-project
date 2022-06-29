@@ -1,11 +1,15 @@
 package nl.gerimedica.controller;
 
+import nl.gerimedica.model.Record;
 import nl.gerimedica.service.RecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/grecord")
@@ -18,5 +22,10 @@ public class RecordController {
     @Autowired
     public RecordController(RecordService recordService) {
         this.recordService = recordService;
+    }
+
+    @GetMapping(produces = "application/json")
+    public List<Record> getAllData(){
+        return this.recordService.getAllData();
     }
 }
