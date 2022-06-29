@@ -54,7 +54,7 @@ public class IntegrationTest {
     public void testUploadAndFullGetAll() throws IOException {
         //events
         // upload is a method for making a fake CSV file and then upload it
-        this.upload();
+        this.upload(true);
         ResponseEntity<String> response = restTemplate.getForEntity(serverUrl, String.class);
         JsonArray jsonArray = new Gson().fromJson(response.getBody(), JsonArray.class);
         //assertion
@@ -67,8 +67,8 @@ public class IntegrationTest {
     void testUniqueCode() throws IOException {
         //events
         // Two uploads
-        this.upload();
-        ResponseEntity<String> response  = this.upload();
+        this.upload(true);
+        ResponseEntity<String> response  = this.upload(true);
         // get all records saved in database
         ResponseEntity<String> getResponse = restTemplate.getForEntity(serverUrl, String.class);
         JsonArray jsonArray = new Gson().fromJson(getResponse.getBody(), JsonArray.class);
@@ -82,7 +82,7 @@ public class IntegrationTest {
     @Test
     public void testGettingExistingRecordByCode() throws IOException {
         //events
-        this.upload();
+        this.upload(true);
         ResponseEntity<String> response = restTemplate.getForEntity(serverUrl+"/276885007", String.class);
         JsonArray jsonArray = new Gson().fromJson(response.getBody(), JsonArray.class);
 
@@ -95,7 +95,7 @@ public class IntegrationTest {
     @Test
     public void testGettingNonExistingRecordByCode() throws IOException {
         //events
-        this.upload();
+        this.upload(true);
         // record with code 23 should not exist.
         ResponseEntity<String> response = restTemplate.getForEntity(serverUrl+"/23", String.class);
         JsonArray jsonArray = new Gson().fromJson(response.getBody(), JsonArray.class);
@@ -106,11 +106,22 @@ public class IntegrationTest {
         Assertions.assertThat(jsonArray.size()).isEqualTo(0);
     }
 
+    @Test
+    public void testUploadAndFullGetAllWithWrongCSVTemplate() throws IOException {
+        //events
+        ResponseEntity<String> response = this.upload(false);
+        //assertion
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
 
-    private ResponseEntity<String> upload() throws IOException {
+
+    private ResponseEntity<String> upload(boolean correct) throws IOException {
         Path sample_csv_file = Paths.get(userDir,"sample.csv");
         // generate CSV file
-        sampleCsvGenerate(sample_csv_file);
+        if (correct)
+            sampleCsvGenerate(sample_csv_file);
+        else
+            wrongSampleCSVGenerate(sample_csv_file);
         // Prepare header
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -155,11 +166,33 @@ public class IntegrationTest {
     }
 
 
+
+    private void wrongSampleCSVGenerate(Path sample_csv_file) throws IOException {
+        BufferedWriter writer = Files.newBufferedWriter(sample_csv_file);
+
+        CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT); {
+            csvPrinter.printRecord("source",
+                    "codeListCode",
+                    "code",
+                    "displayValues",
+                    "longDescription",
+                    "fromDate",
+                    "toDate");
+            csvPrinter.printRecord("ZIB","ZIB002","Type 2","Als een worst, maar klonterig","","01-01-2019","","");
+            csvPrinter.printRecord("ZIB","ZIB003","276885007","Kern temperatuur (invasief gemeten)","","01-01-2019","","");
+            csvPrinter.printRecord("ZIB","ZIB002","Type 4","Als een worst of slang, glad en zacht","","01-01-2019","","");
+            csvPrinter.printRecord("ZIB","ZIB001","271636001","Polsslag regelmatig","The long description is necessary","01-01-2019","","1");
+
+            csvPrinter.flush();
+        }
+    }
+
+
     @Test
     public void testDeletedAll() throws IOException {
         //events
         // First, upload a CSV file with 4 records.
-        this.upload();
+        this.upload(true);
         // Then, we delete it.
         restTemplate.delete(serverUrl);
         // Next, send a Get all request
