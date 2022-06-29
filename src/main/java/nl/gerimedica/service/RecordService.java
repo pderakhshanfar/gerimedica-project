@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RecordService {
@@ -45,5 +46,18 @@ public class RecordService {
 
         // Save the extracted records in the database
         recordRepository.saveAll(extractedRecords);
+    }
+
+    public List<Record> getByCode(String code) {
+        // Find the record with requested code
+        Optional<Record> detectedRecord = recordRepository.findRecordByCode(code);
+
+        // If the requested record exists, return it as the only element in the json.
+        // If it does not exist, return empty list.
+        List result = new ArrayList<>();
+        if(detectedRecord.isPresent()){
+            result.add(detectedRecord.get());
+        }
+        return result;
     }
 }

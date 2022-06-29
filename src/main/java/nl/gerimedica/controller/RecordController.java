@@ -33,4 +33,10 @@ public class RecordController {
     public void uploadCSV(@RequestParam("file") MultipartFile csvFile){
         recordService.saveInDatabase(csvFile);
     }
+
+    @GetMapping(path = "{code}", produces = "application/json")
+    public List<Record> getByCode(@PathVariable("code") String code){
+        LOG.debug("Code {} requested!",code);
+        return this.recordService.getByCode(code);
+    }
 }
