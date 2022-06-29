@@ -63,6 +63,22 @@ public class IntegrationTest {
         Assertions.assertThat(jsonArray.size()).isEqualTo(4);
     }
 
+    @Test
+    void testUniqueCode() throws IOException {
+        //events
+        // Two uploads
+        this.upload();
+        ResponseEntity<String> response  = this.upload();
+        // get all records saved in database
+        ResponseEntity<String> getResponse = restTemplate.getForEntity(serverUrl, String.class);
+        JsonArray jsonArray = new Gson().fromJson(getResponse.getBody(), JsonArray.class);
+        //assertion
+        // The response should be UNPROCESSABLE_ENTITY
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+        // the second one should not be saved in the database.
+        Assertions.assertThat(jsonArray.size()).isEqualTo(4);
+    }
+
 
     private ResponseEntity<String> upload() throws IOException {
         Path sample_csv_file = Paths.get(userDir,"sample.csv");
